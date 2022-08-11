@@ -1,6 +1,16 @@
 import React from "react";
 import "./Header.css";
 
+const Header = () => {
+  return (
+    <div className="header">
+      <TextDropdown text="HELP" />
+      <Network />
+      <TextDropdown text="KO" />
+    </div>
+  );
+};
+
 const TextDropdown = (props) => {
   return (
     <div>
@@ -22,16 +32,6 @@ const Network = () => {
       <span className="text bold">mainnet</span>
       <span className="green sharp bold">#</span>
       <span className="text2">98,203,572</span>
-    </div>
-  );
-};
-
-const Header = () => {
-  return (
-    <div className="header">
-      <TextDropdown text="HELP" />
-      <Network />
-      <TextDropdown text="KO" />
     </div>
   );
 };
