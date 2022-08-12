@@ -1,7 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import "./Nav.css";
+import { SwapContext } from "../context/SwapProvider";
 
 const Nav = () => {
+  const { myAddress, setMyAddress, setMyKlayAmount } = useContext(SwapContext);
+  const connectWallet = async () => {
+    if (!window.klaytn) alert("카이카스 지갑을 설치해주세요!");
+    const [address] = await window.klaytn.enable();
+    setMyAddress(address);
+    const klayAmount = await window.caver.klay.getBalance(address);
+    setMyKlayAmount(klayAmount / 1e18);
+  };
+
   return (
     <nav>
       <section className="home">
@@ -19,7 +29,11 @@ const Nav = () => {
         <NavItem text="대시보드" />
       </section>
       <section className="nav-btn">
-        <button>지갑연결</button>
+        {myAddress ? (
+          <div>{myAddress.substring(0, 16)}...</div>
+        ) : (
+          <button onClick={connectWallet}>지갑연결</button>
+        )}
       </section>
     </nav>
   );
@@ -30,7 +44,10 @@ const NavItem = (props) => {
     <article className="nav-item">
       <span>{props.text}</span>
       {props.isDropdown ? (
-        <img src="https://klayswap.com/img/icon/ic-triangle-bottom-gray.svg" />
+        <img
+          src="https://klayswap.com/img/icon/ic-triangle-bottom-gray.svg"
+          alt="img"
+        />
       ) : (
         <></>
       )}
