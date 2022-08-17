@@ -1,16 +1,47 @@
-import React, { useContext } from "react";
-import "./Nav.css";
+import React, { useContext, useEffect } from "react";
 import { SwapContext } from "../context/SwapProvider";
+import "./Nav.css";
+import tokenABI from "../abi/tokenABI";
+
+const oETH_CA = "0x34d21b1e550d73cee41151c77f3c73359527a396";
 
 const Nav = () => {
-  const { myAddress, setMyAddress, setMyKlayAmount } = useContext(SwapContext);
+  const { myAddress, setMyAddress, setMyKlayAmount, setMyOEthAmount } =
+    useContext(SwapContext);
+
   const connectWallet = async () => {
     if (!window.klaytn) alert("카이카스 지갑을 설치해주세요!");
     const [address] = await window.klaytn.enable();
+    sessionStorage.setItem("address", address);
     setMyAddress(address);
-    const klayAmount = await window.caver.klay.getBalance(address);
+
+    const klayAmount = await window.caver.klay.getBalance(myAddress);
     setMyKlayAmount(klayAmount / 1e18);
+
+    const oEthContract = new window.caver.klay.Contract(tokenABI, oETH_CA);
+    const oETHBalance = await oEthContract.methods.balanceOf(myAddress).call();
+    const decimals = await oEthContract.methods.decimals().call();
+    setMyOEthAmount(oETHBalance / 10 ** decimals);
   };
+
+  useEffect(() => {
+    (async () => {
+      const address = sessionStorage.getItem("address");
+      if (address) {
+        setMyAddress(address);
+
+        const klayAmount = await window.caver.klay.getBalance(address);
+        setMyKlayAmount(klayAmount / 1e18);
+
+        const oEthContract = new window.caver.klay.Contract(tokenABI, oETH_CA);
+        const oETHBalance = await oEthContract.methods
+          .balanceOf(address)
+          .call();
+        const decimals = await oEthContract.methods.decimals().call();
+        setMyOEthAmount(oETHBalance / 10 ** decimals);
+      }
+    })();
+  }, []);
 
   return (
     <nav>
